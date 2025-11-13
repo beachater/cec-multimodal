@@ -58,43 +58,44 @@ def save_checkpoint(checkpoint_file, completed_experiments):
 
 
 def run_experiment(algorithm, function_num, seed, verbose=True):
-    """Run a single experiment."""
+    """Run a single experiment using absolute paths for reliability."""
+    script_dir = Path(__file__).parent.resolve()
+
     if algorithm == 'amlp':
-        cmd = [
-            sys.executable, 'main.py',
-            '--function', str(function_num),
-            '--seed', str(seed)
-        ]
-        pkl_name = f'result_F{function_num}_D5_seed{seed}.pkl'  # DMMOP default D=5 for F1-12, varies for others
+        entry = script_dir / 'main.py'
+        pkl_name = f'result_F{function_num}_D5_seed{seed}.pkl'  # unused here but kept for reference
     elif algorithm == 'tsd':
-        cmd = [
-            sys.executable, 'main_tsd.py',
-            '--function', str(function_num),
-            '--seed', str(seed)
-        ]
+        entry = script_dir / 'main_tsd.py'
         pkl_name = f'result_TSD_F{function_num}_D5_seed{seed}.pkl'
     else:
         raise ValueError(f"Unknown algorithm: {algorithm}")
-    
+
+    if not entry.exists():
+        return False, f"Entry script not found: {entry}"
+
+    cmd = [
+        sys.executable,
+        str(entry),
+        '--function', str(function_num),
+        '--seed', str(seed)
+    ]
+
     if verbose:
-        print(f"Running: {' '.join(cmd)}")
-    
+        print(f"Running: {' '.join(cmd)} (cwd={script_dir})")
+
     try:
         # Run with suppressed output (no verbose AMLP messages)
-        result = subprocess.run(
+        subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            cwd=str(script_dir)
         )
-        
-        # No CSV conversion per seed - only pickle files are saved
-        # CSV aggregation happens at the end for all 30 seeds
-        
+        # No per-seed CSV conversion here
         return True, None
     except subprocess.CalledProcessError as e:
-        error_msg = f"Error: {e.stderr if hasattr(e, 'stderr') else str(e)}"
-        return False, error_msg
+        return False, f"Error: {e.stderr or str(e)}"
 
 
 def main():
