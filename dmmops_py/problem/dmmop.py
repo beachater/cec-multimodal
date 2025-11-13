@@ -195,7 +195,9 @@ class DMMOP:
             self.x = self.SetMinDistance(self.x)
 
         if self.change_type in (7, 8):
-            self.gn = self.proRand.integers(1, self.gn_max) + 0  # 1..gn_max
+            # MATLAB: randi(proRand, gn_max-1)+1 generates [1, gn_max-1] + 1 = [2, gn_max]
+            # Python: integers(1, gn_max) generates [1, gn_max-1], then +1 gives [2, gn_max]
+            self.gn = self.proRand.integers(1, self.gn_max) + 1  # 2..gn_max (matches MATLAB)
             sel = np.sort(self.proRand.choice(self.gn_max, size=self.gn, replace=False))
             self.selected_idx = np.concatenate([sel, np.arange(self.gn_max, self.gn_max + self.ln)])
             if self.change_type == 7 and self.gn == 2:
