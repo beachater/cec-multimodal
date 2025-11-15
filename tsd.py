@@ -168,7 +168,9 @@ class ETFCSA_TSD:
 
     # FCSA mutate with Rac1 floor, performed in drifted coordinates
     def _mutate_fcsa(self, x: np.ndarray, a_norm: float, A: float) -> np.ndarray:
-        p_base = math.exp(-self.r * a_norm)
+        # Clamp exponent to prevent overflow (exp(x) overflows around x > 709)
+        exponent = min(700.0, -self.r * a_norm)
+        p_base = math.exp(exponent)
         over = max(0.0, A - self.c_threshold)
         p_floor = min(0.9, 0.2 + 0.15 * over)
         p = max(p_base, p_floor)
