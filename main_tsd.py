@@ -24,7 +24,8 @@ def main():
     parser.add_argument('--seed', type=int, default=1, help='Random seed')
     parser.add_argument('--maxeval', type=int, default=None, help='Max function evaluations (default: auto)')
     parser.add_argument('--output', type=str, default=None, help='Output filename (default: auto)')
-    
+    parser.add_argument('--result-dir', type=str, default='result', help='Output directory (default: result)')
+
     # TSD-specific parameters
     parser.add_argument('--N', type=int, default=60, help='Population size')
     parser.add_argument('--budget-per-tick', type=int, default=200, help='Evaluations per generation')
@@ -50,7 +51,7 @@ def main():
     
     # Set output filename
     if args.output is None:
-        output_filename = f'result_TSD_F{args.function}_D{problem.dim}_seed{args.seed}.pkl'
+        output_filename = f'smoke_test_result_TSD_F{args.function}_D{problem.dim}_seed{args.seed}.pkl'
     else:
         output_filename = args.output
     
@@ -73,7 +74,7 @@ def main():
     }
     
     # Run TSD
-    tsd_driver(problem, args.seed, output_filename, **tsd_params)
+    tsd_driver(problem, args.seed, output_filename, result_dir=args.result_dir, **tsd_params)
     
     print("=" * 60)
     print("TSD optimization completed!")
