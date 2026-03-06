@@ -38,7 +38,7 @@ def calc_pr_dmmop(archive, xopt, fopt, rangeFE, tolf, Rnich):
     # Find indexes of relevant solutions
     ind = (archive.foundEval2 >= rangeFE[0]) & \
           (archive.foundEval2 <= rangeFE[1]) & \
-          ((archive.value - fopt) < tolf)
+          (np.abs(archive.value - fopt) < tolf)
     
     if np.sum(ind) == 0:  # No good solution
         wasFound = np.zeros(xopt.shape[0], dtype=bool)
